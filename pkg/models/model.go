@@ -3,9 +3,10 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"strings"
+
 	//匿名导入mysql驱动
 	_ "github.com/go-sql-driver/mysql"
-	"strings"
 )
 
 //数据库基本信息
@@ -22,29 +23,29 @@ var DB *sql.DB
 
 //User user表基本信息
 type User struct {
-	id            int
-	email         string
-	role          string
+	id           int
+	email        string
+	role         string
 	creatat      int64
 	lockat       int64
-	password      string
+	password     string
 	passwordsalt string
 	sessionsalt  string
 }
 
-func init(){
+func init() {
 	InitDB()
 	CreateUser()
 }
 
 //InitDB 连接数据库
 func InitDB() {
-	path := strings.Join([]string{userName, ":", password, "@tcp(", ip, ":", port, ")/", dbName, "?charset=utf8"},"")
+	path := strings.Join([]string{userName, ":", password, "@tcp(", ip, ":", port, ")/", dbName, "?charset=utf8"}, "")
 	DB, _ = sql.Open("mysql", path)
 	DB.SetConnMaxLifetime(100)
 	DB.SetMaxIdleConns(20)
 
-	if err := DB.Ping();err != nil{
+	if err := DB.Ping(); err != nil {
 		fmt.Println("open database fail")
 		return
 	}
@@ -52,7 +53,7 @@ func InitDB() {
 }
 
 //CreateUser 创建用户表
-func CreateUser(){
+func CreateUser() {
 	sqlStr := `CREATE TABLE if not exists User (
 					id             INTEGER,
 					email          VARCHAR(40),
@@ -65,7 +66,7 @@ func CreateUser(){
 					PRIMARY KEY (email)
 					)ENGINE=InnoDB DEFAULT CHARSET=utf8;`
 
-	_,err := DB.Exec(sqlStr)
+	_, err := DB.Exec(sqlStr)
 	if err != nil {
 		fmt.Println("create table user failed ")
 		return
