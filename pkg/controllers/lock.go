@@ -2,8 +2,14 @@ package controllers
 
 import (
 	"GoPracticeItem/pkg/models"
+	"errors"
+	"log"
 	"net/http"
 	"strconv"
+)
+
+var (
+	LockSelf = errors.New("admin can not lock self")
 )
 
 //Lock 锁定或解锁用户
@@ -27,14 +33,14 @@ func lock(id int, w http.ResponseWriter, r *http.Request) {
 
 	err := judge(id, idself)
 	if err != nil {
-		models.ErrorJudge(w, err)
+		w.WriteHeader(423)
 		return
 	}
 
-	err = models.UpdateForLock(id, 99999999)
+	err = models.UpdateLock(id, 99999999)
 
 	if err != nil {
-		models.ErrorJudge(w, err)
+		log.Println(err)
 		return
 	}
 }
@@ -42,7 +48,7 @@ func lock(id int, w http.ResponseWriter, r *http.Request) {
 //判断id是否相同
 func judge(id int, idself int) (err error) {
 	if id == idself {
-		return models.LockSelf
+		return LockSelf
 	}
 	return nil
 }
@@ -50,11 +56,10 @@ func judge(id int, idself int) (err error) {
 //解锁用户
 func unlock(id int, w http.ResponseWriter, r *http.Request) {
 
-	err := models.UpdateForLock(id, 0)
+	err := models.UpdateLock(id, 0)
 
 	if err != nil {
-		models.ErrorJudge(w, err)
-		return
+		log.Println(err)
 	}
 
 	w.WriteHeader(205)

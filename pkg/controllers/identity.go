@@ -4,6 +4,7 @@ import (
 	"GoPracticeItem/pkg/models"
 	json2 "encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -21,16 +22,16 @@ func Identity(w http.ResponseWriter, r *http.Request) {
 	//令牌验证
 	err := TokenVerify(r)
 	if err != nil {
-		models.ErrorJudge(w, err)
+
 		return
 	}
 
 	id := GetMessageID(r)
 	messge, err := identitymessage(id)
 	if err != nil {
-		models.ErrorJudge(w, err)
-		return
+		log.Println(err)
 	}
+	w.WriteHeader(201)
 	fmt.Fprintln(w, messge)
 
 }
@@ -48,10 +49,13 @@ func GetIdentJSON(r Ident) string {
 //获取相关信息并返回结构体
 func identitymessage(id int) (message string, err error) {
 	var u Ident
-	email, creat, role, err := models.QuerForIdentity(id)
+	email, creat, role, err := models.QueryIdentity(id)
 	u.ID = id
 	u.Email = email
 	u.Creatat = creat
 	u.Role = role
-	return GetIdentJSON(u), err
+	if err != nil {
+		return "", fmt.Errorf("query identity wrong %w", err)
+	}
+	return GetIdentJSON(u), nil
 }

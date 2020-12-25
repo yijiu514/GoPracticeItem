@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"strings"
 
 	//匿名导入mysql驱动
@@ -46,10 +47,10 @@ func InitDB() {
 	DB.SetMaxIdleConns(20)
 
 	if err := DB.Ping(); err != nil {
-		fmt.Println("open database fail")
+		log.Println("open database fail")
 		return
 	}
-	fmt.Println("open database success")
+	log.Println("open database success")
 }
 
 //CreateUser 创建用户表

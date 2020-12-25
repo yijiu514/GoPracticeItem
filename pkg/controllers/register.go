@@ -3,6 +3,8 @@ package controllers
 import (
 	"GoPracticeItem/pkg/encryption"
 	"GoPracticeItem/pkg/models"
+	"fmt"
+	"log"
 	"net/http"
 	"time"
 )
@@ -16,22 +18,22 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	//注册验证
 	err := verifyregister(email, pwd)
 	if err != nil {
-		models.ErrorJudge(w, err)
+		log.Println(err)
 		return
 	}
 
 	//写入数据库
 	salt := encryption.RandomString(8)
-	err = models.InsertForRegister(email, pwd, salt, time, salt)
+	err = models.InsertRegister(email, pwd, salt, time, salt)
 	if err != nil {
-		models.ErrorJudge(w, err)
+		log.Println(err)
 		return
 	}
 
 	//下发令牌
 	err = encryption.TokenIssue(email, w)
 	if err != nil {
-		models.ErrorJudge(w, err)
+		log.Println(err)
 		return
 	}
 
@@ -52,12 +54,12 @@ func verifyregister(email string, password string) (err error) {
 
 	//邮箱验证
 	if VerifyEmailFormat(email) != nil {
-		return VerifyEmailFormat(email)
+		return fmt.Errorf("register wrong %w", VerifyEmailFormat(email))
 	}
 
 	//数据库验证
-	if models.QueryID(email) != nil {
-		return models.QueryID(email)
+	if models.IsUserExistN(email) != nil {
+		return fmt.Errorf("register wrong %w", models.IsUserExistN(email))
 	}
 
 	return nil

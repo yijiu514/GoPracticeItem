@@ -2,10 +2,15 @@ package controllers
 
 import (
 	"GoPracticeItem/pkg/encryption"
-	"GoPracticeItem/pkg/models"
+	"errors"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
+)
+
+var (
+	EmailWrong = errors.New("the email does not conform to the format")
 )
 
 //VerifyEmailFormat 使用正则表达式对邮箱判断
@@ -13,7 +18,7 @@ func VerifyEmailFormat(email string) error {
 	pattern := `\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*`
 	reg := regexp.MustCompile(pattern)
 	if reg.MatchString(email) {
-		return models.EmailFormat
+		return EmailWrong
 	}
 	return nil
 }
@@ -24,10 +29,12 @@ func TokenVerify(request *http.Request) error {
 	head := request.Header
 	tokenStr := head.Get("Token")
 	id, _ := strconv.Atoi(head.Get("Id"))
+	err := encryption.Getting(tokenStr, id)
 
-	if encryption.Getting(tokenStr, id) != nil {
-		return models.TokenWrong
+	if err != nil {
+		return fmt.Errorf("token verify failed %w", err)
 	}
+
 	return nil
 }
 

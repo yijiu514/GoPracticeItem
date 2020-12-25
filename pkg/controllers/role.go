@@ -2,8 +2,14 @@ package controllers
 
 import (
 	"GoPracticeItem/pkg/models"
+	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
+)
+
+var (
+	RoleWrong = errors.New("the role is not exist")
 )
 
 //Role 修改用户身份
@@ -11,15 +17,14 @@ func Role(id string, w http.ResponseWriter, r *http.Request) {
 
 	err := TokenVerify(r)
 	if err != nil {
-		models.ErrorJudge(w, err)
 		return
 	}
 
 	userid, _ := strconv.Atoi(id)
 
 	err = role(userid, getrole(r))
-	if err != nil {
-		models.ErrorJudge(w, err)
+	if errors.Is(err, RoleWrong) {
+		w.WriteHeader(000)
 		return
 	}
 
@@ -28,16 +33,16 @@ func Role(id string, w http.ResponseWriter, r *http.Request) {
 //修改角色信息写入数据库
 func role(id int, role string) error {
 	if role != "manager" && role != "editor" && role != "admin" {
-		return models.RoleWrong
+		return RoleWrong
 	}
 
-	err := models.QueryID2(id)
+	err := models.IDIsUserExistN(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("idisuserexitsno wrong %w", err)
 	}
-	err = models.UpdateForRole(id, role)
+	err = models.UpdateRole(id, role)
 	if err != nil {
-		return err
+		return fmt.Errorf("updaterole wrong %w", err)
 	}
 	return nil
 }

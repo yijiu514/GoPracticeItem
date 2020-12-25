@@ -3,6 +3,7 @@ package controllers
 import (
 	"GoPracticeItem/pkg/encryption"
 	"GoPracticeItem/pkg/models"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -11,14 +12,14 @@ import (
 func PasswordChange(w http.ResponseWriter, r *http.Request) {
 	err := TokenVerify(r)
 	if err != nil {
-		models.ErrorJudge(w, err)
+		log.Println(err)
 		return
 	}
 	id, newpassword := getidandnewpwd(r)
 	pwd, salt := encryption.Md5Salt(newpassword, 8)
-	err = models.UpdateForPwdChange(id, pwd, salt)
+	err = models.UpdatePwdChange(id, pwd, salt)
 	if err != nil {
-		models.ErrorJudge(w, err)
+		log.Println(err)
 		return
 	}
 	w.WriteHeader(205)

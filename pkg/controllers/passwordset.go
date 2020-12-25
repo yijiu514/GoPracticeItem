@@ -3,22 +3,25 @@ package controllers
 import (
 	"GoPracticeItem/pkg/encryption"
 	"GoPracticeItem/pkg/models"
+	"log"
 	"net/http"
+	"strconv"
 )
 
 //PasswordSet 密码重置
-func PasswordSet(id string, w http.ResponseWriter, r *http.Request) {
+func PasswordSet(idstr string, w http.ResponseWriter, r *http.Request) {
 
 	err := TokenVerify(r)
 	if err != nil {
-		models.ErrorJudge(w, err)
+
 		return
 	}
 
 	pwd, salt := encryption.Md5Salt("123456", 8)
-	err = models.UpdateForPwdSet(id, pwd, salt)
+	id, _ := strconv.Atoi(idstr)
+	err = models.UpdatePwdChange(id, pwd, salt)
 	if err != nil {
-		models.ErrorJudge(w, err)
+		log.Println(err)
 		return
 	}
 	w.WriteHeader(205)

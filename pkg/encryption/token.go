@@ -2,6 +2,7 @@ package encryption
 
 import (
 	"GoPracticeItem/pkg/models"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -15,6 +16,11 @@ type Claims struct {
 	UserID             int
 	jwt.StandardClaims //设置claim信息结构体
 }
+
+var (
+	TokenEmpty = errors.New("the token is empty")
+	TokenWrong = errors.New("the token is wrong or expired")
+)
 
 //TokenCreate 生成token
 func TokenCreate(id int, sessionsalt string) (tokenstring string, err error) {
@@ -30,11 +36,10 @@ func TokenCreate(id int, sessionsalt string) (tokenstring string, err error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
 	tokenstring, err = token.SignedString([]byte(sessionsalt))
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("token encryption wrong %w", err)
 	}
 	return tokenstring, nil
 }
@@ -42,20 +47,20 @@ func TokenCreate(id int, sessionsalt string) (tokenstring string, err error) {
 //Getting 验证token
 func Getting(tokenstring string, id int) error {
 	if tokenstring == "" {
-		return models.TokenWrong
+		return TokenEmpty
 	}
 	token, err := ParseToken(tokenstring, id)
 	if err != nil || !token.Valid {
-		return models.TokenWrong
+		return TokenWrong
 	}
 	return nil
 }
 
 //TokenVerify 令牌验证
 func TokenVerify(id int, token string) (err error) {
-
-	if Getting(token, id) != nil {
-		return Getting(token, id)
+	err = Getting(token, id)
+	if err != nil {
+		return fmt.Errorf("token verify failed %w", err)
 	}
 	return nil
 }
@@ -63,10 +68,16 @@ func TokenVerify(id int, token string) (err error) {
 //ParseToken token解析
 func ParseToken(tokenString string, id int) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		fmt.Println(models.QuerySessionSalt(id))
-		return []byte(models.QuerySessionSalt(id)), nil
+		salt, err := models.QuerySessionSalt(id)
+		if err != nil {
+			return []byte(""), fmt.Errorf("parse wrong %w", err)
+		}
+		return []byte(salt), nil
 	})
-	return token, err
+	if err != nil {
+		return nil, fmt.Errorf("parse wrong %w", err)
+	}
+	return token, nil
 }
 
 // HeaderSet 将token设置到Header
@@ -84,11 +95,12 @@ func TokenIssue(email string, w http.ResponseWriter) error {
 
 	id, salt, err := models.QueryIDandSessionSalt(email)
 	if err != nil {
-		return models.MysqlWrong
+		return fmt.Errorf("query ID and sessionsalt wrong %w", err)
 	}
+
 	token, err := TokenCreate(id, salt)
 	if err != nil {
-		return models.TokenCreateWrong
+		return fmt.Errorf("token create wrong %w", err)
 	}
 
 	idtoken := strconv.Itoa(id)
