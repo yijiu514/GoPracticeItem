@@ -33,7 +33,8 @@ func lock(id int, w http.ResponseWriter, r *http.Request) {
 
 	err := judge(id, idself)
 	if err != nil {
-		w.WriteHeader(423)
+		w.WriteHeader(406)
+		log.Println(err)
 		return
 	}
 
@@ -41,8 +42,11 @@ func lock(id int, w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println(err)
+		w.WriteHeader(500)
 		return
 	}
+
+	w.WriteHeader(205)
 }
 
 //判断id是否相同
@@ -59,6 +63,7 @@ func unlock(id int, w http.ResponseWriter, r *http.Request) {
 	err := models.UpdateLock(id, 0)
 
 	if err != nil {
+		w.WriteHeader(500)
 		log.Println(err)
 	}
 

@@ -34,22 +34,23 @@ func login(w http.ResponseWriter, r *http.Request) {
 	email, pwd := getform(r)
 
 	err := verifylogin(email, pwd)
-	if errors.Is(err, EmailWrong) {
+	if errors.Is(err, EmailWrong) && errors.Is(err, PassWordWrong) {
 		w.WriteHeader(401)
-		return
-	} else if errors.Is(err, PassWordWrong) {
-		w.WriteHeader(201)
+		log.Println(err)
 		return
 	} else if errors.Is(err, Locked) {
-		w.WriteHeader(201)
+		w.WriteHeader(423)
+		log.Println(err)
 		return
 	} else if err != nil {
+		w.WriteHeader(500)
 		log.Println(err)
 		return
 	}
 
 	err = encryption.TokenIssue(email, w)
 	if err != nil {
+		w.WriteHeader(500)
 		log.Println(err)
 		return
 	}
@@ -97,14 +98,16 @@ func quit(w http.ResponseWriter, r *http.Request) {
 	id, token := getid(r)
 
 	err := encryption.TokenVerify(id, token)
-	if err != nil {
-		//进行断言
+	if errors.Is(err, encryption.TokenWrong) && errors.Is(err, encryption.TokenEmpty) {
+		w.WriteHeader(401)
+		log.Println(err)
 		return
 	}
 
 	err = deletesessionsalt(id)
 	if err != nil {
-		//进行断言
+		w.WriteHeader(500)
+		log.Println(err)
 		return
 	}
 

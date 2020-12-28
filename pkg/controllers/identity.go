@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"GoPracticeItem/pkg/encryption"
 	"GoPracticeItem/pkg/models"
 	json2 "encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,16 +23,22 @@ func Identity(w http.ResponseWriter, r *http.Request) {
 
 	//令牌验证
 	err := TokenVerify(r)
-	if err != nil {
-
+	if errors.Is(err, encryption.TokenWrong) && errors.Is(err, encryption.TokenEmpty) {
+		w.WriteHeader(401)
+		log.Println(err)
 		return
 	}
 
 	id := GetMessageID(r)
+
 	messge, err := identitymessage(id)
 	if err != nil {
+		w.WriteHeader(500)
 		log.Println(err)
+		return
 	}
+
+	//查询成功
 	w.WriteHeader(201)
 	fmt.Fprintln(w, messge)
 

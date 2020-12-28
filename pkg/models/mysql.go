@@ -15,7 +15,7 @@ func QueryMaxID() (int, error) {
 	var max int
 	err := DB.QueryRow("select max(id) from user").Scan(&max)
 	if err != nil {
-		return -1, fmt.Errorf("Query wrong -> %w", err)
+		return -1, fmt.Errorf("Query wrong :%w", err)
 	}
 	return max, nil
 }
@@ -25,7 +25,7 @@ func IsUserExistY(email string) error {
 	var num int
 	err := DB.QueryRow("select count(*) from user where  email = ?", email).Scan(&num)
 	if err != nil {
-		return fmt.Errorf("Query wrong -> %w", err)
+		return fmt.Errorf("Query wrong : %w", err)
 	}
 	if num == 0 {
 		return UserNotExist
@@ -38,7 +38,7 @@ func IsUserExistN(email string) error {
 	var num int
 	err := DB.QueryRow("select count(*) from user where  email = ?", email).Scan(&num)
 	if err != nil {
-		return fmt.Errorf("Query wrong -> %w", err)
+		return fmt.Errorf("Query wrong : %w", err)
 	}
 	if num == 1 {
 		return UserISExist
@@ -46,12 +46,12 @@ func IsUserExistN(email string) error {
 	return nil
 }
 
-//
+//IDIsUserExistN 查询用户id是否存在
 func IDIsUserExistN(id int) error {
 	var num int
 	err := DB.QueryRow("select count (*)from user where  id = ?", id).Scan(&num)
 	if err != nil {
-		return fmt.Errorf("Query wrong -> %w", err)
+		return fmt.Errorf("Query wrong : %w", err)
 	}
 	if num == 0 {
 		return UserNotExist
@@ -65,7 +65,7 @@ func QueryRole(id int) (string, error) {
 	sqlStr := "select role from user where id = ?"
 	err := DB.QueryRow(sqlStr, id).Scan(&role)
 	if err != nil {
-		return "", fmt.Errorf("Query wrong -> %w", err)
+		return "", fmt.Errorf("Query wrong : %w", err)
 	}
 	return role, nil
 }
@@ -80,7 +80,7 @@ func QueryLogin(str string) (string, string, int64, error) {
 		&u.lockat,
 	)
 	if err != nil {
-		return "", "", 0, fmt.Errorf("Query wrong -> %w", err)
+		return "", "", 0, fmt.Errorf("Query wrong : %w", err)
 	}
 	return u.password, u.passwordsalt, u.lockat, nil
 }
@@ -96,7 +96,7 @@ func QueryIdentity(id int) (string, int64, string, error) {
 		&u.role,
 	)
 	if err != nil {
-		return "", 0, "", fmt.Errorf("Query wrong -> %w", err)
+		return "", 0, "", fmt.Errorf("Query wrong : %w", err)
 	}
 	return u.email, u.creatat, u.role, nil
 }
@@ -109,7 +109,7 @@ func QueryIDandSessionSalt(email string) (id int, salt string, err error) {
 		&salt,
 	)
 	if err != nil {
-		return 0, "", fmt.Errorf("Query wrong -> %w", err)
+		return 0, "", fmt.Errorf("Query wrong : %w", err)
 	}
 	return id, salt, err
 }
@@ -119,7 +119,7 @@ func QuerySessionSalt(id int) (salt string, err error) {
 	sqlStr := "select sessionsalt from user where id = ?"
 	err = DB.QueryRow(sqlStr, id).Scan(&salt)
 	if err != nil {
-		return "", fmt.Errorf("Query wrong -> %w", err)
+		return "", fmt.Errorf("Query wrong : %w", err)
 	}
 	return salt, nil
 }
@@ -129,12 +129,12 @@ func InsertRegister(email string, password string, passwordsalt string, time int
 	sqlStr := "insert into user(id,email,role,creat_at,lock_at,password,passwordalt,sessionsalt) value(?,?,'editor',?,0,?,?,?)"
 	id, err := QueryMaxID()
 	if err != nil {
-		return fmt.Errorf("QueryMaxID wrong -> %w", err)
+		return fmt.Errorf("QueryMaxID wrong : %w", err)
 	}
 
 	_, err = DB.Exec(sqlStr, id, email, time, password, passwordsalt, sessionsalt)
 	if err != nil {
-		return fmt.Errorf("Insert wrong -> %w", err)
+		return fmt.Errorf("Insert wrong : %w", err)
 	}
 	return nil
 }
@@ -144,7 +144,7 @@ func UpdateLock(id int, time int64) error {
 	sqlStr := "update user set lock_at = ? where id = ?"
 	_, err := DB.Exec(sqlStr, time, id)
 	if err != nil {
-		return fmt.Errorf("Update wrong -> %w", err)
+		return fmt.Errorf("Update wrong : %w", err)
 	}
 	return nil
 }
@@ -154,7 +154,7 @@ func UpdatePwdChange(id int, password string, salt string) error {
 	sqlStr := "update user set password = ?,password_salt = ?  where id = ?"
 	_, err := DB.Exec(sqlStr, password, salt, id)
 	if err != nil {
-		return fmt.Errorf("Update wrong -> %w", err)
+		return fmt.Errorf("Update wrong : %w", err)
 	}
 	return nil
 }
@@ -164,7 +164,7 @@ func UpdateRole(id int, role string) error {
 	sqlStr := "update user set role = ? where id = ?"
 	_, err := DB.Exec(sqlStr, role, id)
 	if err != nil {
-		return fmt.Errorf("Update wrong -> %w", err)
+		return fmt.Errorf("Update wrong : %w", err)
 	}
 	return nil
 }
@@ -174,7 +174,7 @@ func UpdateSessionSalt(id int, sessionsalt string) error {
 	sqlStr := "update user set sessionsalt= ? where id = ?"
 	_, err := DB.Exec(sqlStr, sessionsalt, id)
 	if err != nil {
-		return fmt.Errorf("Update wrong -> %w", err)
+		return fmt.Errorf("Update wrong : %w", err)
 	}
 	return nil
 }

@@ -3,6 +3,7 @@ package controllers
 import (
 	"GoPracticeItem/pkg/encryption"
 	"GoPracticeItem/pkg/models"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,7 +18,16 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	//注册验证
 	err := verifyregister(email, pwd)
-	if err != nil {
+	if errors.Is(err, EmailWrong) {
+		w.WriteHeader(401)
+		log.Println(err)
+		return
+	} else if errors.Is(err, models.UserNotExist) {
+		w.WriteHeader(409)
+		log.Println(err)
+		return
+	} else if err != nil {
+		w.WriteHeader(500)
 		log.Println(err)
 		return
 	}
@@ -26,6 +36,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	salt := encryption.RandomString(8)
 	err = models.InsertRegister(email, pwd, salt, time, salt)
 	if err != nil {
+		w.WriteHeader(500)
 		log.Println(err)
 		return
 	}
@@ -33,6 +44,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	//下发令牌
 	err = encryption.TokenIssue(email, w)
 	if err != nil {
+		w.WriteHeader(500)
 		log.Println(err)
 		return
 	}

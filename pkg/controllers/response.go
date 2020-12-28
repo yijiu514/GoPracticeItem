@@ -38,7 +38,7 @@ func TokenVerify(request *http.Request) error {
 	return nil
 }
 
-//获取id信息
+//GetMessageID 获取id信息
 func GetMessageID(r *http.Request) (id int) {
 	r.ParseForm()
 	head := r.Header

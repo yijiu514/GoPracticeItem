@@ -16,5 +16,4 @@ func init() {
 
 	http.HandleFunc("/test/editor", controllers.Editor)
 	http.HandleFunc("/test/manager", controllers.Manager)
-
 }

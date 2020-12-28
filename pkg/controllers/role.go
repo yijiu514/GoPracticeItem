@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"GoPracticeItem/pkg/encryption"
 	"GoPracticeItem/pkg/models"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -16,7 +18,9 @@ var (
 func Role(id string, w http.ResponseWriter, r *http.Request) {
 
 	err := TokenVerify(r)
-	if err != nil {
+	if errors.Is(err, encryption.TokenWrong) && errors.Is(err, encryption.TokenEmpty) {
+		w.WriteHeader(401)
+		log.Println(err)
 		return
 	}
 
@@ -24,10 +28,16 @@ func Role(id string, w http.ResponseWriter, r *http.Request) {
 
 	err = role(userid, getrole(r))
 	if errors.Is(err, RoleWrong) {
-		w.WriteHeader(000)
+		w.WriteHeader(400)
+		log.Println(err)
+		return
+	} else if errors.Is(err, models.UserNotExist) {
+		w.WriteHeader(404)
+		log.Println(err)
 		return
 	}
 
+	w.WriteHeader(204)
 }
 
 //修改角色信息写入数据库
