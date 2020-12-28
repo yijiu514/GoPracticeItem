@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	//EmailWrong 邮箱格式错误
 	EmailWrong = errors.New("the email does not conform to the format")
 )
 

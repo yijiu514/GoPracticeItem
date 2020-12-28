@@ -18,7 +18,9 @@ type Claims struct {
 }
 
 var (
+	//TokenEmpty 令牌为空
 	TokenEmpty = errors.New("the token is empty")
+	//令牌失效或者错误
 	TokenWrong = errors.New("the token is wrong or expired")
 )
 

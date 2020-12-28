@@ -12,11 +12,13 @@ import (
 )
 
 var (
+	//PassWordWrong 密码错误
 	PassWordWrong = errors.New("the password is wrong")
-	Locked        = errors.New("the user is locked")
+	//Locked 用户已经被锁定
+	Locked = errors.New("the user is locked")
 )
 
-//Login 判断
+//Login 判断用户请求方式，执行登陆和推出功能
 func Login(w http.ResponseWriter, r *http.Request) {
 
 	method := r.Method

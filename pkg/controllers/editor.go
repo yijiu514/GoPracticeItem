@@ -9,9 +9,8 @@ import (
 	"net/http"
 )
 
-var (
-	UsrLMT = errors.New("the user inadequate permissions")
-)
+//UsrLMT 用户权限不足
+var UsrLMT = errors.New("the user inadequate permissions")
 
 //Editor 测试editor接口权限
 func Editor(w http.ResponseWriter, r *http.Request) {

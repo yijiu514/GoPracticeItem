@@ -11,6 +11,7 @@ import (
 )
 
 var (
+	//RoleWrong 角色权限错误
 	RoleWrong = errors.New("the role is not exist")
 )
 

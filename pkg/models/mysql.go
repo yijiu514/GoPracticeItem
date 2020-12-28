@@ -6,8 +6,10 @@ import (
 )
 
 var (
+	//UserNotExist 用户不存在
 	UserNotExist = errors.New("the user is not exist")
-	UserISExist  = errors.New("the user is exist")
+	//UserISExist 用已户存在
+	UserISExist = errors.New("the user is exist")
 )
 
 //QueryMaxID 找到数据库当前最大id
@@ -85,7 +87,7 @@ func QueryLogin(str string) (string, string, int64, error) {
 	return u.password, u.passwordsalt, u.lockat, nil
 }
 
-//QuerIdentity 查询身份相关信息
+//QueryIdentity 查询身份相关信息
 func QueryIdentity(id int) (string, int64, string, error) {
 	var u User
 

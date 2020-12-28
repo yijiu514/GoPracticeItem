@@ -26,6 +26,7 @@ func PasswordChange(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
+
 	w.WriteHeader(204)
 }
 

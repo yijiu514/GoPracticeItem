@@ -8,9 +8,8 @@ import (
 	"strconv"
 )
 
-var (
-	LockSelf = errors.New("admin can not lock self")
-)
+//LockSelf 锁定自己错误
+var LockSelf = errors.New("admin can not lock self")
 
 //Lock 锁定或解锁用户
 func Lock(id string, w http.ResponseWriter, r *http.Request) {
