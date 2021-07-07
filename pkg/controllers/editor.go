@@ -45,6 +45,7 @@ func editor(id int) error {
 	if err != nil {
 		return fmt.Errorf("query role wrong %w", err)
 	}
+	fmt.Println("change")
 	if r == "manager" {
 		return UsrLMT
 	}
